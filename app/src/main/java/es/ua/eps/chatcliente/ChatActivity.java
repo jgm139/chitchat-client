@@ -11,46 +11,54 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.ListView;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
 
-    private Socket socket;
     private String messageToSend;
-    private ClientThread clientThread;
     private Button buttonSend;
     private EditText toSend;
-    private TextView containerMessages;
-    private DataOutputStream out;
+    private ListView lv;
 
+    private static List<Bubble> bubbles;
+    private BubblesArrayAdapter adapter;
+
+    private ClientThread clientThread;
+    private DataOutputStream out;
+    private Socket socket;
     private int SERVER_PORT;
     private String SERVER_IP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.chat_activity);
 
         Intent intent_received = getIntent();
-
         SERVER_IP = intent_received.getStringExtra("IP_SERVER");
         SERVER_PORT = Integer.parseInt(intent_received.getStringExtra("PORT"));
 
-        ipserver();
+        lv = findViewById(android.R.id.list);
+        toSend = findViewById(R.id.toSend);
+        buttonSend = findViewById(R.id.buttonSend);
 
-        this.clientThread = new ClientThread();
-        this.clientThread.execute();
+        ip();
 
-        this.toSend = findViewById(R.id.toSend);
-        this.buttonSend = findViewById(R.id.buttonSend);
-        this.containerMessages = findViewById(R.id.containerMessages);
+        lv.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+        bubbles = new ArrayList<Bubble>();
+        adapter = new BubblesArrayAdapter(this, R.layout.item_bubble_left, bubbles);
+        lv.setAdapter(adapter);
+
+        clientThread = new ClientThread();
+        clientThread.execute();
 
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,7 +86,11 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-    private void ipserver() {
+    public static List<Bubble> getBubbles() {
+        return bubbles;
+    }
+
+    private String ip() {
         WifiManager wifiManager;
         String ip;
 
@@ -86,6 +98,8 @@ public class ChatActivity extends AppCompatActivity {
         ip = getIpFormat(wifiManager.getConnectionInfo().getIpAddress());
 
         Log.d("INFORMATION", "IP Client: " + ip);
+
+        return ip;
     }
 
     private static String getIpFormat(int code) {
@@ -132,6 +146,15 @@ public class ChatActivity extends AppCompatActivity {
 
             return null;
         }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            toSend.setText("");
+
+            Bubble b = new Bubble("You", messageToSend, true);
+            bubbles.add(b);
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private class ReadThread extends AsyncTask {
@@ -160,7 +183,11 @@ public class ChatActivity extends AppCompatActivity {
 
         @Override
         protected void onProgressUpdate(Object[] values) {
-            containerMessages.append(read + "\n");
+            String[] r = read.split("\\$");
+            Bubble b = new Bubble(r[0], r[1], false);
+
+            bubbles.add(b);
+            adapter.notifyDataSetChanged();
         }
     }
 }
