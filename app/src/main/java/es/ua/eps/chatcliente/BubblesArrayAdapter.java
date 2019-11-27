@@ -31,7 +31,7 @@ public class BubblesArrayAdapter extends ArrayAdapter {
         ViewHolder viewHolder = new ViewHolder(); //instanciamos el viewHolder
 
 
-        if(getItemViewType(position) == 0) { //Cargamos un layout para los mensajes del propio cliente
+        if(getItemViewType(position) == 0) { //Cargamos el layout para los mensajes del propio cliente
             convertView = LayoutInflater.from(context).inflate(R.layout.item_bubble_right, null); //cargamos la vista de cada celda
             //inicializamos las vistas del viewHolder según el convertView que tengamos
             viewHolder.userID = convertView.findViewById(R.id.uID);
@@ -45,7 +45,7 @@ public class BubblesArrayAdapter extends ArrayAdapter {
             viewHolder.userLine.setText(b.uLine);
 
 
-        } else { //Cargamos otro layout para los mensajes de otros clientes
+        } else { //Cargamos el otro layout para los mensajes de otros clientes
             convertView = LayoutInflater.from(context).inflate(R.layout.item_bubble_left, null);
             viewHolder.userID = convertView.findViewById(R.id.uID);
             viewHolder.userLine = convertView.findViewById(R.id.uLine);
@@ -62,15 +62,19 @@ public class BubblesArrayAdapter extends ArrayAdapter {
 
     @Override
     public int getViewTypeCount() {
+        //devuelve la cantidad de diferentes de vistas que puede tener el ArrayAdapter
         return 2;
-    } //devuelve la cantidad diferentes de vistas que puede tenr
+    }
 
     @Override
     public int getItemViewType(int position) {
-        if(ChatActivity.getBubbles().get(position).myMessage) { //si el mensaje es del propio cliente devuelve 0
+        //En este método comprobamos si el nuevo mensaje que se va a añadir al ListView
+        //debe "inflar" un layout u otro
+        //si el mensaje es del propio cliente devuelve 0
+        if(ChatActivity.getBubbles().get(position).myMessage) {
             return 0;
         }
-
-        return 1; //si es de otro cliente devuelve 1
+        //si es de otro cliente devuelve 1
+        return 1;
     }
 }
