@@ -38,9 +38,9 @@ public class BubblesArrayAdapter extends ArrayAdapter {
             viewHolder.userLine = convertView.findViewById(R.id.uLine);
             viewHolder.userIcon = convertView.findViewById(R.id.uIcon);
 
-            convertView.setTag(viewHolder); //asignamos la vista con el viewHolder
+            convertView.setTag(viewHolder); //añadimos una etiqueta al ViewHolder para reciclar las celdas
 
-            //les damos valor a las vistas del holder con los datos de la lista de mensajes
+            //les damos valor a las vistas del holder con los datos del mensaje
             viewHolder.userID.setText(b.uID);
             viewHolder.userLine.setText(b.uLine);
 
